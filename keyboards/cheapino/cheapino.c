@@ -27,7 +27,7 @@ uint32_t flash_led(uint32_t next_trigger_time, void *cb_arg) {
     }
 }
 
-void keyboard_post_init_user(void) {
+void keyboard_post_init_kb(void) {
     //debug_enable=true;
     //debug_matrix=true;
     //debug_keyboard=true;
@@ -39,7 +39,8 @@ void keyboard_post_init_user(void) {
     _value = rgblight_get_val();
 
     // Flash a little on start
-    defer_exec(50, flash_led, NULL);
+//    defer_exec(50, flash_led, NULL);
+    keyboard_post_init_user();
 }
 
 // Make the builtin RGB led show different colors per layer:

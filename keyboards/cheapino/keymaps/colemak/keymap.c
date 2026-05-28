@@ -1,5 +1,13 @@
 #include QMK_KEYBOARD_H
 
+/* (h, s, v) */
+#define CLR_QWERTY  15,  255, 255
+#define CLR_COLEMAK 5,   255, 255
+#define CLR_SYM     215, 255, 255
+#define CLR_NUM     205, 255, 255
+#define CLR_NAV     128, 255, 255
+#define CLR_CAPS    0,   0,   255
+
 enum layers
 {
   L_QWERTY,
@@ -17,7 +25,7 @@ enum custom_keycodes
   MACRO_QUOTES,
   MACRO_ARROW,
   MACRO_ANGLES,
-  TG_BASE, /* toggle base layer between colemak and qwerty */
+  TG_BASE /* toggle base layer between qwerty and colemak */
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS]
@@ -64,8 +72,17 @@ process_record_user (uint16_t keycode, keyrecord_t *record)
     {
       switch (keycode)
         {
+        case TG_BASE:
+          if (default_layer_state & (1UL << L_COLEMAK))
+            set_single_persistent_default_layer (L_QWERTY);
+          else
+            set_single_persistent_default_layer (L_COLEMAK);
+          return false;
+
         case MACRO_PARENS:
-          SEND_STRING ("()" SS_TAP (X_LEFT));
+          tap_code16 (KC_LPRN);
+          tap_code16 (KC_RPRN);
+          tap_code (KC_LEFT);
           return false;
 
         case MACRO_BRACES:
@@ -73,28 +90,85 @@ process_record_user (uint16_t keycode, keyrecord_t *record)
           return false;
 
         case MACRO_BRACKETS:
-          SEND_STRING ("[]" SS_TAP (X_LEFT));
+          tap_code16 (KC_LBRC);
+          tap_code16 (KC_RBRC);
+          tap_code (KC_LEFT);
           return false;
 
         case MACRO_QUOTES:
-          SEND_STRING ("\"\"" SS_TAP (X_LEFT));
+          tap_code16 (KC_DQUO);
+          tap_code16 (KC_DQUO);
+          tap_code (KC_LEFT);
           return false;
 
         case MACRO_ARROW:
-          SEND_STRING ("->");
+          tap_code (KC_MINS);
+          tap_code16 (KC_GT);
           return false;
 
         case MACRO_ANGLES:
-          SEND_STRING ("<>" SS_TAP (X_LEFT));
-          return false;
-
-        case TG_BASE:
-          if (default_layer_state & (1UL << L_COLEMAK))
-            set_single_persistent_default_layer(L_QWERTY);
-          else
-            set_single_persistent_default_layer(L_COLEMAK);
+          tap_code16 (KC_LT);
+          tap_code16 (KC_GT);
+          tap_code (KC_LEFT);
           return false;
         }
     }
+  return true;
+}
+
+void
+set_led_color (layer_state_t current_state, layer_state_t base_state)
+{
+  uint8_t current_layer = get_highest_layer (current_state);
+  uint8_t base_layer = get_highest_layer (base_state);
+
+  switch (current_layer)
+    {
+    case L_NAV:
+      rgblight_sethsv_noeeprom (CLR_NAV);
+      break;
+    case L_SYM:
+      rgblight_sethsv_noeeprom (CLR_SYM);
+      break;
+    case L_NUM:
+      rgblight_sethsv_noeeprom (CLR_NUM);
+      break;
+    default:
+      if (host_keyboard_led_state ().caps_lock)
+        rgblight_sethsv_noeeprom (CLR_CAPS);
+      else if (base_layer == L_COLEMAK)
+        rgblight_sethsv_noeeprom (CLR_COLEMAK);
+      else
+        rgblight_sethsv_noeeprom (CLR_QWERTY);
+      break;
+    }
+}
+
+void
+keyboard_post_init_user (void)
+{
+  rgblight_enable_noeeprom ();
+  rgblight_mode_noeeprom (RGBLIGHT_MODE_STATIC_LIGHT);
+  set_led_color (layer_state, default_layer_state);
+}
+
+layer_state_t
+default_layer_state_set_user (layer_state_t state)
+{
+  set_led_color (layer_state, state);
+  return state;
+}
+
+layer_state_t
+layer_state_set_user (layer_state_t state)
+{
+  set_led_color (state, default_layer_state);
+  return state;
+}
+
+bool
+led_update_user (led_t led_state)
+{
+  set_led_color (layer_state, default_layer_state);
   return true;
 }

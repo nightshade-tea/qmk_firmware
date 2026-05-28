@@ -5,6 +5,10 @@
 #define TAPPING_FORCE_HOLD
 #define PERMISSIVE_HOLD
 
+#define RGBLIGHT_LIMIT_VAL 30
+#undef WS2812_BYTE_ORDER
+#define WS2812_BYTE_ORDER WS2812_BYTE_ORDER_GRB
+
 /* macos sleep power mgmt quirks?? */
 #define NO_USB_STARTUP_CHECK
 #define USB_SUSPEND_WAKEUP_DELAY 0
