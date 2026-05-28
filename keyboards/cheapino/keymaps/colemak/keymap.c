@@ -67,28 +67,32 @@ process_record_user (uint16_t keycode, keyrecord_t *record)
         case MACRO_PARENS:
           SEND_STRING ("()" SS_TAP (X_LEFT));
           return false;
+
         case MACRO_BRACES:
-          SEND_STRING ("{}" SS_TAP (X_LEFT) SS_TAP (X_ENTER) SS_TAP (X_UP)
-                           SS_TAP (X_END) SS_TAP (X_ENTER));
+          SEND_STRING ("{\n\n}" SS_TAP (X_UP));
           return false;
+
         case MACRO_BRACKETS:
           SEND_STRING ("[]" SS_TAP (X_LEFT));
           return false;
+
         case MACRO_QUOTES:
           SEND_STRING ("\"\"" SS_TAP (X_LEFT));
           return false;
+
         case MACRO_ARROW:
           SEND_STRING ("->");
           return false;
+
         case MACRO_ANGLES:
           SEND_STRING ("<>" SS_TAP (X_LEFT));
           return false;
+
         case TG_BASE:
           if (default_layer_state & (1UL << L_COLEMAK))
             set_single_persistent_default_layer(L_QWERTY);
           else
             set_single_persistent_default_layer(L_COLEMAK);
-
           return false;
         }
     }
