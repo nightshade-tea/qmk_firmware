@@ -7,6 +7,7 @@
 #define CLR_NUM     205, 255, 255
 #define CLR_NAV     128, 255, 255
 #define CLR_CAPS    0,   0,   255
+#define CLR_STL     0,   255, 1
 
 enum layers
 {
@@ -25,7 +26,8 @@ enum custom_keycodes
   MACRO_QUOTES,
   MACRO_ARROW,
   MACRO_ANGLES,
-  TG_BASE /* toggle base layer between qwerty and colemak */
+  TG_BASE, /* toggle base layer between qwerty and colemak */
+  TG_STL,
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS]
@@ -63,7 +65,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS]
             KC_F10, KC_BRID, KC_BRIU, KC_CALC, KC_WSCH, KC_WBAK, KC_F13,
             KC_MPRV, KC_MPLY, KC_MNXT, KC_MUTE, KC_UNDO, KC_CUT, KC_COPY,
             KC_PSTE, KC_F11, KC_F12, KC_NO, KC_NO, KC_NO, KC_NO, KC_NO,
-            KC_TRNS, KC_NO, TG_BASE, KC_TRNS, KC_NO) };
+            KC_TRNS, KC_NO, TG_BASE, KC_TRNS, TG_STL) };
+
+static unsigned char stl = 0;
+static void
+set_led_color (layer_state_t current_state, layer_state_t base_state);
 
 bool
 process_record_user (uint16_t keycode, keyrecord_t *record)
@@ -72,13 +78,6 @@ process_record_user (uint16_t keycode, keyrecord_t *record)
     {
       switch (keycode)
         {
-        case TG_BASE:
-          if (default_layer_state & (1UL << L_COLEMAK))
-            set_single_persistent_default_layer (L_QWERTY);
-          else
-            set_single_persistent_default_layer (L_COLEMAK);
-          return false;
-
         case MACRO_PARENS:
           tap_code16 (KC_LPRN);
           tap_code16 (KC_RPRN);
@@ -111,16 +110,34 @@ process_record_user (uint16_t keycode, keyrecord_t *record)
           tap_code16 (KC_GT);
           tap_code (KC_LEFT);
           return false;
+
+        case TG_BASE:
+          if (default_layer_state & (1UL << L_COLEMAK))
+            set_single_persistent_default_layer (L_QWERTY);
+          else
+            set_single_persistent_default_layer (L_COLEMAK);
+          return false;
+
+        case TG_STL:
+          stl ^= 1;
+          set_led_color (layer_state, default_layer_state);
+          return false;
         }
     }
   return true;
 }
 
-void
+static void
 set_led_color (layer_state_t current_state, layer_state_t base_state)
 {
   uint8_t current_layer = get_highest_layer (current_state);
   uint8_t base_layer = get_highest_layer (base_state);
+
+  if (stl)
+    {
+      rgblight_sethsv_noeeprom (CLR_STL);
+      return;
+    }
 
   switch (current_layer)
     {
