@@ -8,6 +8,8 @@
 #define ENC_B_COL 4
 #define ENC_BUTTON_COL 0
 
+extern bool encoder_update_user(uint8_t index, bool clockwise);
+
 static bool colABPressed   = false;
 static bool encoderPressed = false;
 
@@ -15,6 +17,7 @@ void clicked(void) {
     tap_code(KC_MPLY);
 }
 
+/*
 void turned(bool clockwise) {
     if (IS_LAYER_ON(6)) {
         tap_code(clockwise ? KC_VOLU : KC_VOLD);
@@ -25,6 +28,11 @@ void turned(bool clockwise) {
     } else {
         tap_code16(clockwise ? KC_PGDN : KC_PGUP);
     }
+}
+*/
+
+void turned(bool clockwise) {
+    encoder_update_user(0, clockwise);
 }
 
 void fix_encoder_action(matrix_row_t current_matrix[]) {

@@ -53,12 +53,18 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS]
             KC_TRNS, KC_NO),
 
         [L_SYM] = LAYOUT_split_3x5_3 (
-            KC_NO, KC_NO, KC_NO, MACRO_BRACKETS, MACRO_ANGLES, LSFT (KC_BSLS),
-            LSFT (KC_9), LSFT (KC_0), KC_LBRC, KC_RBRC, KC_LSFT, KC_NO,
-            MACRO_QUOTES, MACRO_PARENS, MACRO_ARROW, LSFT (KC_7), LSFT (KC_1),
-            KC_MINS, LSFT (KC_QUOT), KC_QUOT, KC_LCTL, KC_LALT, KC_LGUI,
-            MACRO_BRACES, KC_NO, KC_BSLS, LSFT (KC_8), LSFT (KC_MINS), KC_EQL,
-            KC_GRV, KC_NO, KC_TRNS, KC_NO, KC_CAPS, MO (L_NAV), KC_TAB),
+            KC_NO, KC_NO, KC_NO, MACRO_BRACKETS, MACRO_ANGLES,
+            KC_GRV, KC_LBRC, LSFT (KC_9), LSFT (KC_0), KC_RBRC,
+
+            KC_LSFT, KC_NO, MACRO_QUOTES, MACRO_PARENS, MACRO_ARROW,
+            LSFT (KC_8), LSFT (KC_QUOT), KC_MINS, LSFT (KC_BSLS), LSFT (KC_1),
+
+            KC_LCTL, KC_LALT, KC_LGUI, MACRO_BRACES, KC_NO,
+            LSFT (KC_7), KC_QUOT, LSFT (KC_MINS), KC_EQL, KC_BSLS,
+
+            KC_NO, KC_TRNS, KC_NO,
+            KC_CAPS, MO (L_NAV), KC_TAB
+        ),
 
         [L_NAV] = LAYOUT_split_3x5_3 (
             KC_F1, KC_F2, KC_F3, KC_F4, KC_F5, KC_F6, KC_F7, KC_F8, KC_F9,
@@ -188,4 +194,15 @@ led_update_user (led_t led_state)
 {
   set_led_color (layer_state, default_layer_state);
   return true;
+}
+
+bool
+encoder_update_user (uint8_t index, bool clockwise)
+{
+  if (clockwise)
+    tap_code (KC_VOLD);
+  else
+    tap_code (KC_VOLU);
+
+  return false;
 }
